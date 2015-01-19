@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" >
+    <title>RECURSIVE-TREE</title>
+    <style>
+        html, body{
+            margin:0;
+            padding:0;
+            font:62.5%;
+        }
+        
+        #iScreen{
+            background:black;
+            border:1px solid black;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="iScreen" width="640px" height="480px"></canvas>
+    <script>
+        
+        
+        var iScreen = document.getElementById("iScreen");
+        var ctx     = iScreen.getContext("2d");
+        
+        var OW      =640;
+        var OH      =480;
+        
+        
+        function getMinMax( min, max ){
+            return Math.random()*(max-min) + min;
+        }
+        
+        var Vector = function( x, y ){
+            this.x = x||0;
+            this.y = y||0;
+        }
+        
+        Vector.prototype    ={
+            
+            add: function( v ){
+                this.x+=v.x;
+                this.y+=v.y;
+                return this;
+            },
+            
+            length:function(){
+                return Math.sqrt( this.x * this.x + this.y * this.y );
+            },
+            
+            rotate:function( angle ){
+                var tempx = this.x;
+                var tempy = this.y;
+                this.x = Math.cos(angle)*tempx-Math.sin(angle)*tempy;
+                this.y = Math.sin(angle)*tempx+Math.cos(angle)*tempy;
+                return this;
+            },
+            
+            mult: function( m ){
+                this.x*=m;
+                this.y*=m;
+                return this;
+            }
+            
+            
+        }
+        
+        var Branch  =function( ctx, point, velocity, radius, color ){
+             this.ctx       = ctx;
+             this.point     = point;
+             this.velocity  = velocity;
+             this.radius    = radius || 3;
+             this.color     = color || 'rgba( 255, 128, 0, 0.7)';
+             this.life    = 0;
+             this.generation= 1;
+        }
+        
+        Branch.prototype    ={
+            
+            draw:function(){
+                var c= this.ctx;
+                var p= this.point;
+                var r= this.radius;
+                c.save();
+                c.globalCompositeOperation ='lighter';
+                c.beginPath();
+                c.fillStyle = this.color;
+                c.moveTo( p.x, p.y );
+                c.arc( p.x, p.y, r, 0, Math.PI*2 );
+                c.fill();
+                c.closePath();
+                c.restore();
+            },
+            
+            update:function(){
+                
+                var angle = 0.18-(0.10/this.generation);
+                this.point.add( this.velocity );
+                this.life+=this.velocity.length();
+                this.radius*=.99;
+                this.velocity.rotate( getMinMax(-angle, angle) )
+                
+            },
+            
+            render:function(){
+                
+                this.draw();
+                this.update();
+                var life =this.life - getMinMax(100, 200);
+                if( life > 0 ){
+                    //console.log("life", life);
+                }
+                
+            }
+        
+        }
+        
+        var FACTOR      =(OH*2)/OH;
+        var SPEED   =3/FACTOR;
+        var START_RADIUS =20;
+        var b = new Branch( ctx, new Vector(OW/2, OH), new Vector(getMinMax(-1, 1), -SPEED), START_RADIUS/FACTOR )
+        var ab = new Branch( ctx, new Vector(OW/2, OH), new Vector(getMinMax(-1, 1), -SPEED), START_RADIUS/FACTOR )
+        var abc = new Branch( ctx, new Vector(OW/2, OH), new Vector(getMinMax(-1, 1), -SPEED), START_RADIUS/FACTOR )
+        var renderID = setInterval( function(){
+            b.render();
+            ab .render();
+            abc.render();
+        }, 50 );
+        
+    </script>
+</body>
+</html>

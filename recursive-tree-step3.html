@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" >
+    <title>RECURSIVE-TREE</title>
+    <style>
+        html, body{
+            margin:0;
+            padding:0;
+            font:62.5%;
+        }
+        
+        #iScreen{
+            background:black;
+            border:1px solid black;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="iScreen" width="640px" height="480px"></canvas>
+    <script>
+        
+        /**
+        ▧▧▧▧▧▧▧▧▧▧▧▧▧▧▧▧▧▧▧▧▧▧▧▧▧▧▧▧▧
+            step3.
+                가지 처리 방식의 고민.
+                    단순 줄기는 너무 빈약해 보인다.
+                    
+                
+            
+            step2.
+                기본 가지는 느낌이 나옴.
+                    문제는 어떻게 이것을 풍성하게 만드느냐..
+                        -depth값에 따른 변수 제어가 필수.
+                        -겹치는 곳은 lighter옵션을 주면 될듯.
+                        -문제는 angle
+                
+            recursive의 원리
+                -하나의 라인을 중앙에 그린다.
+                    -이어서 2개를 붙여서 그린다.
+                    -이어서 4개를 붙여서 그린다.
+                    -이를 특정 횟수까지 반복한다.
+                    -반복 되면 점점 요소를 조절한다.
+        ▧▧▧▧▧▧▧▧▧▧▧▧▧▧▧▧▧▧▧▧▧▧▧▧▧▧▧▧▧
+        */
+        var iScreen = document.getElementById("iScreen");
+        var ctx     = iScreen.getContext("2d");
+        
+        var OW      =640;
+        var OH      =480;
+        var MAX_DEPTHS =8;
+        
+        var branchs =[];
+        var depths  =0;
+        var activeBranches=[];
+        
+        
+        function convertAngleToRadians( angle ){
+            return angle * (Math.PI/180);
+        }
+        
+        // 기준 줄기 그리기 
+        var a       =new Branch( ctx );
+        a.x         =OW/2;
+        a.y         =OH + Math.random()*-30-35+depths*3;
+        drawBranch( a );
+        activeBranches.push( a );
+        
+   
+        
+        function onMouseDown_Document( e ){
+            if( depths <  MAX_DEPTHS ){
+                appendChildBranch();
+                depths++;
+            }
+        }
+        
+        document.addEventListener( 'mousedown', onMouseDown_Document );
+        
+        function appendChildBranch() {
+            
+            var abs =[];
+            while( activeBranches.length > 0 ){
+                parent = activeBranches.pop();
+                var child_a = new Branch( ctx );
+                child_a.angle = convertAngleToRadians((Math.random()*20+5)+(Math.random()*7)*depths);
+                var d         = Math.random()*-30-35+depths*3;
+                child_a.x   = parent.x + d * Math.sin(child_a.angle);
+                child_a.y   = parent.y + d * Math.cos(child_a.angle);
+                drawBranch( child_a );
+                
+                parent.graphics.globalCompositeOperation ='darker';//'lighter';
+                
+                parent.graphics.moveTo( parent.x, parent.y );
+                parent.graphics.lineTo( child_a.x, child_a.y );
+                parent.graphics.stroke();
+                parent.graphics.shadowBlur = (child_a.thickness/3+0.15);
+                parent.graphics.shadowColor = 'rgba(255, 128, 0,'+  (child_a.thickness/3+0.15) +')';
+
+                
+                
+                var child_b = new Branch( ctx );
+                child_b.angle = convertAngleToRadians((Math.random()*-20-5)-(Math.random()*7)*depths);
+                d           =Math.random()*-30-35+depths*3;
+                child_b.x   = parent.x + d * Math.sin(child_b.angle);
+                child_b.y   = parent.y + d * Math.cos(child_b.angle);
+                drawBranch( child_b );    
+                
+                parent.graphics.globalCompositeOperation ='darker';
+                parent.graphics.moveTo( parent.x, parent.y );
+                parent.graphics.lineTo( child_b.x, child_b.y );
+                parent.graphics.stroke();
+                parent.graphics.shadowBlur = (child_a.thickness/3+0.15);
+                parent.graphics.shadowColor = 'rgba(255, 128, 0,'+  (child_a.thickness/3+0.15) +')';
+                
+                
+            
+                abs.push( child_a );
+                abs.push( child_b );
+            }
+            
+            
+            activeBranches = abs;
+        }
+        
+        
+        function Branch(ctx){
+            this.thickness           = MAX_DEPTHS/2-depths/2;
+            console.log("thickness", this.thickness );
+            this.graphics            = ctx;
+            this.graphics.strokeStyle='rgba(255, 128, 64,'+ (this.thickness/3+0.15) +')';
+            this.graphics.fillStyle='rgba(255, 255, 255,'+  0 +')';
+            this.graphics.lineWidth  = this.thickness;
+        }
+        
+        function drawBranch( branch ){
+            branch.graphics.save();
+            branch.graphics.beginPath();
+            //branch.graphics.arc( branch.x, branch.y, 1, 0, Math.PI*2);
+            //branch.graphics.fill();
+            branch.graphics.closePath();
+            branch.graphics.restore();
+        }
+        
+        
+        //var nodes   =
+        
+    </script>
+</body>
+</html>

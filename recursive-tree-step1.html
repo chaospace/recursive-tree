@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" >
+    <title>RECURSIVE-TREE</title>
+    <style>
+        html, body{
+            margin:0;
+            padding:0;
+            font:62.5%;
+        }
+        
+        #iScreen{
+            background:white;
+            border:1px solid black;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="iScreen" width="640px" height="480px"></canvas>
+    <script>
+        
+        
+        var iScreen = document.getElementById("iScreen");
+        var ctx     = iScreen.getContext("2d");
+        
+        var OW      =640;
+        var OH      =480;
+        
+        var n       =2+Math.random()*3;
+        var iRadius =OW/50;
+        
+        ctx.fillRect( 0, 0, 150, 150 );
+        //ctx.save();
+        
+        // change setting
+        ctx.fillStyle   ='#66ffff';
+        ctx.fillRect( 10, 10, 100, 100 );
+        ctx.save();
+        
+        // change setting
+        ctx.fillStyle   ='#993333';
+        ctx.globalAlpha ='0.5';
+        ctx.fillRect( 30, 30, 90, 90 );
+        
+        // restore previous state
+        ctx.restore();
+        // draw a rectangle with restored settings
+        ctx.fillRect(45,45,60,60);   
+        
+    </script>
+</body>
+</html>
